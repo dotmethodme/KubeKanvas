@@ -2,29 +2,29 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Wails: Production myproject",
+      "name": "Wails: Production kubekanvas",
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/bin/myproject",
+      "program": "${workspaceFolder}/build/bin/kubekanvas",
       "preLaunchTask": "build",
       "cwd": "${workspaceFolder}"
     },
     {
-      "name": "Wails: Debug myproject",
+      "name": "Wails: Debug kubekanvas",
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/bin/myproject",
+      "program": "${workspaceFolder}/build/bin/kubekanvas",
       "preLaunchTask": "build debug",
       "cwd": "${workspaceFolder}"
     },
     {
-      "name": "Wails: Dev myproject",
+      "name": "Wails: Dev kubekanvas",
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/bin/myproject",
+      "program": "${workspaceFolder}/build/bin/kubekanvas",
       "preLaunchTask": "build dev",
       "cwd": "${workspaceFolder}"
     }

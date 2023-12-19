@@ -1,14 +1,14 @@
 package main
 
 import (
-	"changeme/backend"
 	"context"
-	"os"
+	"kubekanvas/backend"
+	"reflect"
 
+	"gopkg.in/yaml.v2"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 )
 
 // App struct
@@ -52,10 +52,43 @@ func (a *App) GetServices(contextName string, namespace string) *corev1.ServiceL
 	return result
 }
 
+func removeEmptyFields(obj interface{}) {
+	val := reflect.ValueOf(obj)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+	}
+
+	if val.Kind() != reflect.Struct {
+		return
+	}
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		if field.Kind() == reflect.Ptr && field.IsNil() {
+			val.Field(i).Set(reflect.Zero(field.Type()))
+		} else if field.Kind() == reflect.Array || field.Kind() == reflect.Slice {
+			if field.Len() == 0 {
+				val.Field(i).Set(reflect.Zero(field.Type()))
+			} else {
+				for j := 0; j < field.Len(); j++ {
+					removeEmptyFields(field.Index(j).Addr().Interface())
+				}
+			}
+		} else if field.Kind() == reflect.Struct {
+			removeEmptyFields(field.Addr().Interface())
+		} else if field.Kind() == reflect.Int && field.Interface() == reflect.Zero(field.Type()).Interface() {
+			val.Field(i).Set(reflect.Zero(field.Type()))
+		}
+	}
+}
+
 func (a *App) GetServiceYaml(contextName string, namespace string, serviceName string) string {
 	result, _ := backend.GetClient(contextName).CoreV1().Services(namespace).Get(context.TODO(), serviceName, metav1.GetOptions{})
-	json.NewYAMLSerializer(json.DefaultMetaFactory, nil, nil).Encode(result, os.Stdout)
-	return result.String()
+	result.ManagedFields = nil
+	removeEmptyFields(result)
+
+	serviceYAML, _ := yaml.Marshal(result)
+	return string(serviceYAML)
 }
 
 func (a *App) GetConfigMaps(contextName string, namespace string) *corev1.ConfigMapList {

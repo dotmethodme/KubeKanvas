@@ -46,7 +46,6 @@ const selectedService = computed(() => {
 
 const selectedServiceYaml = ref<string>();
 watch(selectedService, () => {
-  console.log(selectedService.value);
   if (
     !selectedService.value?.metadata.name ||
     !activeContextName.value ||
@@ -55,12 +54,10 @@ watch(selectedService, () => {
     return;
   }
 
-  console.log("getting yaml");
-
   GetServiceYaml(
     activeContextName.value,
     activeNamespace.value,
-    selectedService.value.name
+    selectedService.value.metadata.name
   ).then((result) => {
     selectedServiceYaml.value = result;
   });
