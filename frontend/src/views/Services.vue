@@ -1,17 +1,16 @@
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { GetServiceYaml, GetServices } from "../../wailsjs/go/main/App";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { GetServices } from "../../wailsjs/go/main/App";
 import { v1 } from "../../wailsjs/go/models";
+import SelectedResource from "../components/SelectedResource.vue";
 import { useGlobalStore } from "../stores/global";
 import { getTimeAgo } from "../utils/date";
-import YAML from "yaml";
-
-const items = ref<v1.ServiceList>();
-const selectedServiceId = ref<string>();
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
+const items = ref<v1.ServiceList>();
+const selectedId = ref<string>();
 
 function getData() {
   if (!activeContextName.value || !activeNamespace.value) return;
@@ -21,6 +20,7 @@ function getData() {
 }
 
 let interval: number;
+
 onMounted(() => {
   getData();
   interval = setInterval(() => {
@@ -28,40 +28,9 @@ onMounted(() => {
   }, 5000);
 });
 
-onBeforeUnmount(() => {
-  clearInterval(interval);
-});
+onBeforeUnmount(() => clearInterval(interval));
 
-watch([activeContextName, activeNamespace], () => {
-  getData();
-});
-
-const selectedService = computed(() => {
-  if (!selectedServiceId.value) return;
-  const result = items.value?.items.find(
-    (item) => item.metadata.uid === selectedServiceId.value
-  );
-  return result;
-});
-
-const selectedServiceYaml = ref<string>();
-watch(selectedService, () => {
-  if (
-    !selectedService.value?.metadata.name ||
-    !activeContextName.value ||
-    !activeNamespace.value
-  ) {
-    return;
-  }
-
-  GetServiceYaml(
-    activeContextName.value,
-    activeNamespace.value,
-    selectedService.value.metadata.name
-  ).then((result) => {
-    selectedServiceYaml.value = result;
-  });
-});
+watch([activeContextName, activeNamespace], getData);
 </script>
 
 <template>
@@ -81,11 +50,11 @@ watch(selectedService, () => {
         class="cursor-pointer hover:bg-base-200"
         :class="{
           // @ts-ignore
-          'bg-base-200': selectedServiceId === item.metadata.uid,
+          'bg-base-200': selectedId === item.metadata.uid,
         }"
         @click="
           // @ts-ignore
-          selectedServiceId = item.metadata.uid
+          selectedId = item.metadata.uid
         "
       >
         <td>
@@ -114,25 +83,12 @@ watch(selectedService, () => {
         </td>
       </tr>
     </tbody>
-    <div class="drawer drawer-end">
-      <input
-        id="my-drawer-4"
-        type="checkbox"
-        class="drawer-toggle"
-        :checked="!!selectedServiceId"
-      />
-      <div class="drawer-side">
-        <div
-          @click="selectedServiceId = undefined"
-          aria-label="close sidebar"
-          class="drawer-overlay"
-        ></div>
-        <div
-          class="p-4 w-6/12 min-h-full bg-base-200 text-base-content overflow-auto"
-        >
-          <pre><code>{{ selectedServiceYaml }}</code></pre>
-        </div>
-      </div>
-    </div>
   </table>
+
+  <SelectedResource
+    v-if="selectedId && items"
+    resourceType="service"
+    v-model="selectedId"
+    :allResources="(items?.items as any)"
+  />
 </template>

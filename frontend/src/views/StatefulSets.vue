@@ -6,35 +6,26 @@ import { v1 } from "../../wailsjs/go/models";
 import { useGlobalStore } from "../stores/global";
 import { getTimeAgo } from "../utils/date";
 
-const items = ref<v1.StatefulSetList>();
-
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
+const items = ref<v1.StatefulSetList>();
+const selectedId = ref<string>();
 
 function getData() {
   if (!activeContextName.value || !activeNamespace.value) return;
   GetStatefulSets(activeContextName.value, activeNamespace.value).then(
-    (result) => {
-      items.value = result;
-    }
+    (result) => (items.value = result)
   );
 }
 
 let interval: number;
 onMounted(() => {
   getData();
-  interval = setInterval(() => {
-    getData();
-  }, 5000);
+  interval = setInterval(getData, 5000);
 });
 
-onBeforeUnmount(() => {
-  clearInterval(interval);
-});
-
-watch([activeContextName, activeNamespace], () => {
-  getData();
-});
+onBeforeUnmount(() => clearInterval(interval));
+watch([activeContextName, activeNamespace], getData);
 </script>
 
 <template>

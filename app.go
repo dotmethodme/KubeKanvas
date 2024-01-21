@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"kubekanvas/backend"
+	"os/exec"
 	"reflect"
 
-	"gopkg.in/yaml.v2"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -25,6 +25,17 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+}
+
+func (a *App) GetResourceYaml(args backend.GetResourceYamlRequest) string {
+	cmd := exec.Command("kubectl", "get", args.ResourceType, args.ResourceName, "-n", args.Namespace, "-o", "yaml", "--context", args.ContextName)
+	out, err := cmd.Output()
+
+	if err != nil {
+		return err.Error()
+	}
+
+	return string(out)
 }
 
 func (a *App) GetDeployments(contextName string, namespace string) *appsv1.DeploymentList {
@@ -80,15 +91,6 @@ func removeEmptyFields(obj interface{}) {
 			val.Field(i).Set(reflect.Zero(field.Type()))
 		}
 	}
-}
-
-func (a *App) GetServiceYaml(contextName string, namespace string, serviceName string) string {
-	result, _ := backend.GetClient(contextName).CoreV1().Services(namespace).Get(context.TODO(), serviceName, metav1.GetOptions{})
-	result.ManagedFields = nil
-	removeEmptyFields(result)
-
-	serviceYAML, _ := yaml.Marshal(result)
-	return string(serviceYAML)
 }
 
 func (a *App) GetConfigMaps(contextName string, namespace string) *corev1.ConfigMapList {

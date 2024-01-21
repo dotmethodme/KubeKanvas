@@ -6,10 +6,10 @@ import { getTimeAgo } from "../utils/date";
 import { storeToRefs } from "pinia";
 import { useGlobalStore } from "../stores/global";
 
-const items = ref<v1.PodList>();
-
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
+const items = ref<v1.PodList>();
+const selectedId = ref<string>();
 
 function getData() {
   if (!activeContextName.value || !activeNamespace.value) return;
@@ -26,13 +26,9 @@ onMounted(() => {
   }, 5000);
 });
 
-onBeforeUnmount(() => {
-  clearInterval(interval);
-});
+onBeforeUnmount(() => clearInterval(interval));
 
-watch([activeContextName, activeNamespace], () => {
-  getData();
-});
+watch([activeContextName, activeNamespace], getData);
 </script>
 
 <template>

@@ -34,12 +34,12 @@ export function GetPods(arg1, arg2) {
   return window['go']['main']['App']['GetPods'](arg1, arg2);
 }
 
-export function GetSecrets(arg1, arg2) {
-  return window['go']['main']['App']['GetSecrets'](arg1, arg2);
+export function GetResourceYaml(arg1) {
+  return window['go']['main']['App']['GetResourceYaml'](arg1);
 }
 
-export function GetServiceYaml(arg1, arg2, arg3) {
-  return window['go']['main']['App']['GetServiceYaml'](arg1, arg2, arg3);
+export function GetSecrets(arg1, arg2) {
+  return window['go']['main']['App']['GetSecrets'](arg1, arg2);
 }
 
 export function GetServices(arg1, arg2) {

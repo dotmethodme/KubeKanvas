@@ -4,7 +4,9 @@ import { storeToRefs } from "pinia";
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { GetAvailableContexts, GetNamespaces } from "../wailsjs/go/main/App";
+import CommandControl from "./components/CommandControl.vue";
 import { Contexts, useGlobalStore } from "./stores/global";
+import { menu } from "./utils/menu";
 
 const globalStore = useGlobalStore();
 const route = useRoute();
@@ -75,53 +77,6 @@ function onNamespaceChange(e: Event) {
 }
 
 const selectContext = ref<HTMLSelectElement>();
-
-const menu = [
-  {
-    title: "Workloads",
-    icon: "mdi:gear",
-    items: [
-      {
-        title: "Pods",
-        route: "/pods",
-      },
-      {
-        title: "Deployments",
-        route: "/deployments",
-      },
-      {
-        title: "Statefulsets",
-        route: "/statefulsets",
-      },
-      {
-        title: "Replicasets",
-        route: "/replicasets",
-      },
-      {
-        title: "Daemonsets",
-        route: "/daemonsets",
-      },
-    ],
-  },
-  {
-    title: "Networking",
-    icon: "mdi:cube-outline",
-    items: [
-      {
-        title: "Services",
-        route: "/services",
-      },
-      {
-        title: "Ingresses",
-        route: "/ingresses",
-      },
-      {
-        title: "Network policies",
-        route: "/network-policies",
-      },
-    ],
-  },
-] as const;
 </script>
 
 <template>
@@ -176,10 +131,14 @@ const menu = [
     <div class="flex-1 overflow-auto p-4">
       <router-view></router-view>
     </div>
+
+    <CommandControl />
   </div>
 </template>
 
-<style>
+<style lang="scss">
+@import "./styles/command-pallete.scss";
+
 #logo {
   display: block;
   width: 50%;

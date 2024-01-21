@@ -1,3 +1,26 @@
+export namespace backend {
+	
+	export class GetResourceYamlRequest {
+	    contextName: string;
+	    namespace: string;
+	    resourceType: string;
+	    resourceName: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new GetResourceYamlRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.contextName = source["contextName"];
+	        this.namespace = source["namespace"];
+	        this.resourceType = source["resourceType"];
+	        this.resourceName = source["resourceName"];
+	    }
+	}
+
+}
+
 export namespace v1 {
 	
 	export class PodAntiAffinity {
