@@ -1,10 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"kubekanvas/backend"
 	"os/exec"
-	"reflect"
+	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -63,34 +64,36 @@ func (a *App) GetServices(contextName string, namespace string) *corev1.ServiceL
 	return result
 }
 
-func removeEmptyFields(obj interface{}) {
-	val := reflect.ValueOf(obj)
-	if val.Kind() == reflect.Ptr {
-		val = val.Elem()
+func (a *App) GetPodLogs(contextName string, namespace string, podName string, shouldIncludeTimestamp bool) ([]string, string) {
+	tailLines := int64(200)
+
+	req := backend.GetClient(contextName).CoreV1().Pods(namespace).GetLogs(podName, &corev1.PodLogOptions{
+		TailLines:  &tailLines,
+		Timestamps: shouldIncludeTimestamp,
+	})
+	podLogs, err := req.Stream(context.Background())
+	if err != nil {
+		return nil, err.Error()
+	}
+	defer podLogs.Close()
+
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(podLogs)
+	if err != nil {
+		return nil, err.Error()
 	}
 
-	if val.Kind() != reflect.Struct {
-		return
-	}
+	logLines := strings.Split(buf.String(), "\n")
 
-	for i := 0; i < val.NumField(); i++ {
-		field := val.Field(i)
-		if field.Kind() == reflect.Ptr && field.IsNil() {
-			val.Field(i).Set(reflect.Zero(field.Type()))
-		} else if field.Kind() == reflect.Array || field.Kind() == reflect.Slice {
-			if field.Len() == 0 {
-				val.Field(i).Set(reflect.Zero(field.Type()))
-			} else {
-				for j := 0; j < field.Len(); j++ {
-					removeEmptyFields(field.Index(j).Addr().Interface())
-				}
-			}
-		} else if field.Kind() == reflect.Struct {
-			removeEmptyFields(field.Addr().Interface())
-		} else if field.Kind() == reflect.Int && field.Interface() == reflect.Zero(field.Type()).Interface() {
-			val.Field(i).Set(reflect.Zero(field.Type()))
+	// Filter out any empty strings that may have been appended
+	var filteredLogs []string
+	for _, log := range logLines {
+		if log != "" {
+			filteredLogs = append(filteredLogs, log)
 		}
 	}
+
+	return filteredLogs, ""
 }
 
 func (a *App) GetConfigMaps(contextName string, namespace string) *corev1.ConfigMapList {

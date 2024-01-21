@@ -17,6 +17,8 @@ export function GetPersistentVolumeClaims(arg1:string,arg2:string):Promise<v1.Pe
 
 export function GetPersistentVolumes(arg1:string):Promise<v1.PersistentVolumeList>;
 
+export function GetPodLogs(arg1:string,arg2:string,arg3:string,arg4:boolean):Promise<Array<string>|string>;
+
 export function GetPods(arg1:string,arg2:string):Promise<v1.PodList>;
 
 export function GetResourceYaml(arg1:backend.GetResourceYamlRequest):Promise<string>;

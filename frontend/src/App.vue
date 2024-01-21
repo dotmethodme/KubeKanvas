@@ -150,4 +150,19 @@ const selectContext = ref<HTMLSelectElement>();
   background-size: 100% 100%;
   background-origin: content-box;
 }
+
+::-webkit-scrollbar-track {
+  // background-color: oklch(var(--b1));
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  // background-color: oklch(var(--b1));
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: oklch(var(--nc));
+}
 </style>

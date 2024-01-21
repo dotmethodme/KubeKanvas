@@ -1,10 +1,12 @@
 <script lang="ts" setup>
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { GetPods } from "../../wailsjs/go/main/App";
 import { v1 } from "../../wailsjs/go/models";
 import { getTimeAgo } from "../utils/date";
 import { storeToRefs } from "pinia";
 import { useGlobalStore } from "../stores/global";
+import SelectedResource from "../components/SelectedResource.vue";
+import PodLogs from "../components/PodLogs.vue";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
@@ -29,6 +31,16 @@ onMounted(() => {
 onBeforeUnmount(() => clearInterval(interval));
 
 watch([activeContextName, activeNamespace], getData);
+
+const selectedPodName = computed(() => {
+  if (!selectedId.value) return;
+  const result = items.value?.items?.find(
+    // @ts-ignore
+    (x) => x.metadata.uid === selectedId.value
+  );
+  // @ts-ignore
+  return result?.metadata?.name;
+});
 </script>
 
 <template>
@@ -44,7 +56,18 @@ watch([activeContextName, activeNamespace], getData);
       </tr>
     </thead>
     <tbody>
-      <tr v-for="item in items?.items || []">
+      <tr
+        v-for="item in items?.items || []"
+        class="cursor-pointer hover:bg-base-200"
+        :class="{
+          // @ts-ignore
+          'bg-base-200': selectedId === item.metadata.uid,
+        }"
+        @click="
+          // @ts-ignore
+          selectedId = item.metadata.uid
+        "
+      >
         <td>
           <div class="flex flex-col">
             <span class="font-semibold">{{
@@ -91,4 +114,15 @@ watch([activeContextName, activeNamespace], getData);
       </tr>
     </tbody>
   </table>
+
+  <SelectedResource
+    v-if="selectedId && items"
+    resourceType="pod"
+    v-model="selectedId"
+    :allResources="(items?.items as any)"
+  >
+    <template #logs>
+      <PodLogs v-if="selectedPodName" v-model="selectedPodName" />
+    </template>
+  </SelectedResource>
 </template>

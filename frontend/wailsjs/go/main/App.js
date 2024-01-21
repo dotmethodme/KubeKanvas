@@ -30,6 +30,10 @@ export function GetPersistentVolumes(arg1) {
   return window['go']['main']['App']['GetPersistentVolumes'](arg1);
 }
 
+export function GetPodLogs(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['GetPodLogs'](arg1, arg2, arg3, arg4);
+}
+
 export function GetPods(arg1, arg2) {
   return window['go']['main']['App']['GetPods'](arg1, arg2);
 }
