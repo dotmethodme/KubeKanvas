@@ -48,6 +48,9 @@ onMounted(async () => {
   interval.value = setInterval(() => {
     if (!shouldFollow.value) return;
     fetchData();
+    setTimeout(() => {
+      container.value?.scrollTo(0, container.value?.scrollHeight);
+    }, 10);
   }, 1000);
 });
 

@@ -7,6 +7,7 @@ import { GetAvailableContexts, GetNamespaces } from "../wailsjs/go/main/App";
 import CommandControl from "./components/CommandControl.vue";
 import { Contexts, useGlobalStore } from "./stores/global";
 import { menu } from "./utils/menu";
+import { WindowMinimise, Quit, WindowMaximise } from "../wailsjs/runtime";
 
 const globalStore = useGlobalStore();
 const route = useRoute();
@@ -80,7 +81,7 @@ const selectContext = ref<HTMLSelectElement>();
 </script>
 
 <template>
-  <div class="flex flex-row h-full">
+  <div class="flex flex-row h-full" style="--wails-draggable: drag">
     <div class="bg-base-200 w-56">
       <div class="p-4 pb-0">
         <select
@@ -128,8 +129,35 @@ const selectContext = ref<HTMLSelectElement>();
       </ul>
     </div>
 
-    <div class="flex-1 overflow-auto p-4">
-      <router-view></router-view>
+    <div class="w-full overflow-hidden content">
+      <!-- close, minimize, fullscreen -->
+      <div class="flex flex-row justify-end" style="--wails-draggable: drag">
+        <button
+          class="btn btn-square btn-ghost btn-sm rounded-none"
+          aria-label="Maximize"
+          @click="WindowMaximise()"
+        >
+          <Icon icon="mdi:window-maximize" />
+        </button>
+        <button
+          class="btn btn-square btn-ghost btn-sm rounded-none"
+          aria-label="Minimize"
+          @click="WindowMinimise()"
+        >
+          <Icon icon="mdi:window-minimize" />
+        </button>
+
+        <button
+          class="btn btn-square btn-ghost btn-sm rounded-none"
+          aria-label="Close"
+          @click="Quit()"
+        >
+          <Icon icon="mdi:close" />
+        </button>
+      </div>
+      <div class="px-4 overflow-auto h-full" style="--wails-draggable: no-drag">
+        <router-view></router-view>
+      </div>
     </div>
 
     <CommandControl />
@@ -139,6 +167,9 @@ const selectContext = ref<HTMLSelectElement>();
 <style lang="scss">
 @import "./styles/command-pallete.scss";
 
+.content {
+  height: calc(100vh);
+}
 #logo {
   display: block;
   width: 50%;
@@ -157,8 +188,10 @@ const selectContext = ref<HTMLSelectElement>();
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 10px;
+
   // background-color: oklch(var(--b1));
 }
 

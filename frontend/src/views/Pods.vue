@@ -58,7 +58,7 @@ const selectedPodName = computed(() => {
     <tbody>
       <tr
         v-for="item in items?.items || []"
-        class="cursor-pointer hover:bg-base-200"
+        class="cursor-pointer hover:bg-base-300 rounded-lg"
         :class="{
           // @ts-ignore
           'bg-base-200': selectedId === item.metadata.uid,
