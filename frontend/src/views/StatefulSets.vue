@@ -5,6 +5,7 @@ import { GetStatefulSets } from "../../wailsjs/go/main/App";
 import { v1 } from "../../wailsjs/go/models";
 import { useGlobalStore } from "../stores/global";
 import { getTimeAgo } from "../utils/date";
+import { getMetadata } from "../utils/k8s";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
@@ -13,9 +14,7 @@ const selectedId = ref<string>();
 
 function getData() {
   if (!activeContextName.value || !activeNamespace.value) return;
-  GetStatefulSets(activeContextName.value, activeNamespace.value).then(
-    (result) => (items.value = result)
-  );
+  GetStatefulSets(activeContextName.value, activeNamespace.value).then((result) => (items.value = result));
 }
 
 let interval: number;
@@ -43,33 +42,21 @@ watch([activeContextName, activeNamespace], getData);
       <tr v-for="item in items?.items || []">
         <td>
           <div class="flex flex-col">
-            <span class="font-semibold">{{
-              // @ts-ignore
-              item.metadata.name
-            }}</span>
+            <span class="font-semibold">{{ getMetadata(item)?.name }}</span>
           </div>
         </td>
         <td>
-          <span class="text-sm">
-            {{ item.status?.readyReplicas }}/{{ item.status?.replicas }}
-          </span>
+          <span class="text-sm"> {{ item.status?.readyReplicas }}/{{ item.status?.replicas }} </span>
+        </td>
+        <td>
+          <span class="text-sm"> {{ item.status?.updatedReplicas }}/{{ item.status?.replicas }} </span>
+        </td>
+        <td>
+          <span class="text-sm"> {{ item.status?.availableReplicas }}/{{ item.status?.replicas }} </span>
         </td>
         <td>
           <span class="text-sm">
-            {{ item.status?.updatedReplicas }}/{{ item.status?.replicas }}
-          </span>
-        </td>
-        <td>
-          <span class="text-sm">
-            {{ item.status?.availableReplicas }}/{{ item.status?.replicas }}
-          </span>
-        </td>
-        <td>
-          <span class="text-sm">
-            {{
-              // @ts-ignore
-              getTimeAgo(item.metadata.creationTimestamp)
-            }}
+            {{ getTimeAgo(getMetadata(item)?.creationTimestamp) }}
           </span>
         </td>
       </tr>

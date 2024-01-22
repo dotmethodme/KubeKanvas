@@ -6,6 +6,7 @@ import { v1 } from "../../wailsjs/go/models";
 import SelectedResource from "../components/SelectedResource.vue";
 import { useGlobalStore } from "../stores/global";
 import { getTimeAgo } from "../utils/date";
+import { getMetadata } from "../utils/k8s";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
@@ -23,9 +24,7 @@ let interval: number;
 
 onMounted(() => {
   getData();
-  interval = setInterval(() => {
-    getData();
-  }, 5000);
+  interval = setInterval(getData, 5000);
 });
 
 onBeforeUnmount(() => clearInterval(interval));
@@ -49,19 +48,12 @@ watch([activeContextName, activeNamespace], getData);
         v-for="item in items?.items || []"
         class="cursor-pointer hover:bg-base-200"
         :class="{
-          // @ts-ignore
-          'bg-base-200': selectedId === item.metadata.uid,
+          'bg-base-200': selectedId === getMetadata(item)?.uid,
         }"
-        @click="
-          // @ts-ignore
-          selectedId = item.metadata.uid
-        "
+        @click="selectedId = getMetadata(item)?.uid"
       >
         <td>
-          <span class="font-semibold">{{
-            // @ts-ignore
-            item.metadata.name
-          }}</span>
+          <span class="font-semibold">{{ getMetadata(item)?.name }}</span>
         </td>
         <td>
           <span class="text-sm">{{ item.spec?.type }}</span>
@@ -71,15 +63,10 @@ watch([activeContextName, activeNamespace], getData);
         </td>
 
         <td>
-          <span class="text-sm">{{
-            item.spec?.ports?.map((port) => port.port).join(", ")
-          }}</span>
+          <span class="text-sm">{{ item.spec?.ports?.map((port) => port.port).join(", ") }}</span>
         </td>
         <td>
-          <span class="text-sm">{{
-            // @ts-ignore
-            getTimeAgo(item.metadata.creationTimestamp)
-          }}</span>
+          <span class="text-sm">{{ getTimeAgo(getMetadata(item)?.creationTimestamp) }}</span>
         </td>
       </tr>
     </tbody>

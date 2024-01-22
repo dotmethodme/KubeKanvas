@@ -3,13 +3,17 @@ package main
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"kubekanvas/backend"
 	"os/exec"
 	"strings"
+	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 // App struct
@@ -123,4 +127,25 @@ func (a *App) GetNamespaces(contextName string) *corev1.NamespaceList {
 
 func (a *App) GetAvailableContexts() []string {
 	return backend.GetAvailableContexts()
+}
+
+func (a *App) RestartDeployment(contextName string, namespace string, deploymentName string) bool {
+	data := fmt.Sprintf(`{"spec": {"template": {"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": "%s"}}}}}`, time.Now().Format("20060102150405"))
+
+	_, err := backend.GetClient(contextName).AppsV1().Deployments(namespace).Patch(context.TODO(), deploymentName, types.StrategicMergePatchType, []byte(data), v1.PatchOptions{})
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+func (a *App) GetPodsByDeployment(contextName string, namespace string, labelSelector metav1.LabelSelector) *corev1.PodList {
+	fmt.Println(labelSelector)
+	result, _ := backend.GetClient(contextName).CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
+		LabelSelector: metav1.FormatLabelSelector(&labelSelector),
+	})
+
+	return result
 }

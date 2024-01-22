@@ -21,6 +21,8 @@ export function GetPodLogs(arg1:string,arg2:string,arg3:string,arg4:boolean):Pro
 
 export function GetPods(arg1:string,arg2:string):Promise<v1.PodList>;
 
+export function GetPodsByDeployment(arg1:string,arg2:string,arg3:v1.LabelSelector):Promise<v1.PodList>;
+
 export function GetResourceYaml(arg1:backend.GetResourceYamlRequest):Promise<string>;
 
 export function GetSecrets(arg1:string,arg2:string):Promise<v1.SecretList>;
@@ -28,3 +30,5 @@ export function GetSecrets(arg1:string,arg2:string):Promise<v1.SecretList>;
 export function GetServices(arg1:string,arg2:string):Promise<v1.ServiceList>;
 
 export function GetStatefulSets(arg1:string,arg2:string):Promise<v1.StatefulSetList>;
+
+export function RestartDeployment(arg1:string,arg2:string,arg3:string):Promise<boolean>;

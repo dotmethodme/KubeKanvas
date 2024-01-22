@@ -7,6 +7,7 @@ import { storeToRefs } from "pinia";
 import { useGlobalStore } from "../stores/global";
 import SelectedResource from "../components/SelectedResource.vue";
 import PodLogs from "../components/PodLogs.vue";
+import { getMetadata } from "../utils/k8s";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
@@ -34,12 +35,8 @@ watch([activeContextName, activeNamespace], getData);
 
 const selectedPodName = computed(() => {
   if (!selectedId.value) return;
-  const result = items.value?.items?.find(
-    // @ts-ignore
-    (x) => x.metadata.uid === selectedId.value
-  );
-  // @ts-ignore
-  return result?.metadata?.name;
+  const result = items.value?.items?.find((x) => getMetadata(x)?.uid === selectedId.value);
+  return getMetadata(result)?.name;
 });
 </script>
 
@@ -58,22 +55,15 @@ const selectedPodName = computed(() => {
     <tbody>
       <tr
         v-for="item in items?.items || []"
-        class="cursor-pointer hover:bg-base-300 rounded-lg"
+        class="cursor-pointer hover:bg-base-300"
         :class="{
-          // @ts-ignore
-          'bg-base-200': selectedId === item.metadata.uid,
+          'bg-base-200': selectedId === getMetadata(item)?.uid,
         }"
-        @click="
-          // @ts-ignore
-          selectedId = item.metadata.uid
-        "
+        @click="selectedId = getMetadata(item)?.uid"
       >
         <td>
           <div class="flex flex-col">
-            <span class="font-semibold">{{
-              // @ts-ignore
-              item.metadata.name
-            }}</span>
+            <span class="font-semibold">{{ getMetadata(item)?.name }}</span>
           </div>
         </td>
         <td>
@@ -88,8 +78,7 @@ const selectedPodName = computed(() => {
                 ? "Running"
                 : item.status?.containerStatuses?.[0].state?.waiting
                 ? "Waiting"
-                : item.status?.containerStatuses?.[0].state?.terminated
-                    ?.exitCode === 0
+                : item.status?.containerStatuses?.[0].state?.terminated?.exitCode === 0
                 ? "Finished"
                 : "Error"
             }}
@@ -97,12 +86,7 @@ const selectedPodName = computed(() => {
         </td>
         <td>
           <span class="text-sm">
-            {{
-              getTimeAgo(
-                // @ts-ignore
-                item.metadata.creationTimestamp
-              )
-            }}
+            {{ getTimeAgo(getMetadata(item)?.creationTimestamp) }}
           </span>
         </td>
         <td>

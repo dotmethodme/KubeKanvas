@@ -38,6 +38,10 @@ export function GetPods(arg1, arg2) {
   return window['go']['main']['App']['GetPods'](arg1, arg2);
 }
 
+export function GetPodsByDeployment(arg1, arg2, arg3) {
+  return window['go']['main']['App']['GetPodsByDeployment'](arg1, arg2, arg3);
+}
+
 export function GetResourceYaml(arg1) {
   return window['go']['main']['App']['GetResourceYaml'](arg1);
 }
@@ -52,4 +56,8 @@ export function GetServices(arg1, arg2) {
 
 export function GetStatefulSets(arg1, arg2) {
   return window['go']['main']['App']['GetStatefulSets'](arg1, arg2);
+}
+
+export function RestartDeployment(arg1, arg2, arg3) {
+  return window['go']['main']['App']['RestartDeployment'](arg1, arg2, arg3);
 }

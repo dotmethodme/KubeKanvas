@@ -6,6 +6,8 @@ import { getTimeAgo } from "../utils/date";
 import { storeToRefs } from "pinia";
 import { useGlobalStore } from "../stores/global";
 import SelectedResource from "../components/SelectedResource.vue";
+import { getMetadata } from "../utils/k8s";
+import DeploymentGeneral from "../components/DeploymentGeneral.vue";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
@@ -14,11 +16,9 @@ const selectedId = ref<string>();
 
 function getData() {
   if (!activeContextName.value || !activeNamespace.value) return;
-  GetDeployments(activeContextName.value, activeNamespace.value).then(
-    (result) => {
-      items.value = result;
-    }
-  );
+  GetDeployments(activeContextName.value, activeNamespace.value).then((result) => {
+    items.value = result;
+  });
 }
 
 let interval: number;
@@ -50,43 +50,27 @@ watch([activeContextName, activeNamespace], getData);
         v-for="item in items?.items || []"
         class="cursor-pointer hover:bg-base-200"
         :class="{
-          // @ts-ignore
-          'bg-base-200': selectedId === item.metadata.uid,
+          'bg-base-200': selectedId === getMetadata(item)?.uid,
         }"
-        @click="
-          // @ts-ignore
-          selectedId = item.metadata.uid
-        "
+        @click="selectedId = getMetadata(item)?.uid"
       >
         <td>
           <div class="flex flex-col">
-            <span class="font-semibold">{{
-              // @ts-ignore
-              item.metadata.name
-            }}</span>
+            <span class="font-semibold">{{ getMetadata(item)?.name }}</span>
           </div>
         </td>
         <td>
-          <span class="text-sm">
-            {{ item.status?.readyReplicas }}/{{ item.status?.replicas }}
-          </span>
+          <span class="text-sm"> {{ item.status?.readyReplicas }}/{{ item.status?.replicas }} </span>
+        </td>
+        <td>
+          <span class="text-sm"> {{ item.status?.updatedReplicas }}/{{ item.status?.replicas }} </span>
+        </td>
+        <td>
+          <span class="text-sm"> {{ item.status?.availableReplicas }}/{{ item.status?.replicas }} </span>
         </td>
         <td>
           <span class="text-sm">
-            {{ item.status?.updatedReplicas }}/{{ item.status?.replicas }}
-          </span>
-        </td>
-        <td>
-          <span class="text-sm">
-            {{ item.status?.availableReplicas }}/{{ item.status?.replicas }}
-          </span>
-        </td>
-        <td>
-          <span class="text-sm">
-            {{
-              // @ts-ignore
-              getTimeAgo(item.metadata.creationTimestamp)
-            }}
+            {{ getTimeAgo(getMetadata(item)?.creationTimestamp) }}
           </span>
         </td>
       </tr>
@@ -98,5 +82,9 @@ watch([activeContextName, activeNamespace], getData);
     resourceType="deployment"
     v-model="selectedId"
     :allResources="(items?.items as any)"
-  />
+  >
+    <template #general="{ selectedResource }">
+      <DeploymentGeneral v-if="selectedResource" :selectedResource="(selectedResource as any)" />
+    </template>
+  </SelectedResource>
 </template>
