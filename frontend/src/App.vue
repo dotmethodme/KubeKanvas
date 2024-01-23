@@ -10,6 +10,7 @@ import { menu } from "./utils/menu";
 import { WindowMinimise, Quit, WindowMaximise } from "../wailsjs/runtime";
 import { getMetadata } from "./utils/k8s";
 import { notEmpty } from "./utils/array";
+import GlobalDialog from "./components/GlobalDialog.vue";
 
 const globalStore = useGlobalStore();
 const route = useRoute();
@@ -82,6 +83,8 @@ const selectContext = ref<HTMLSelectElement>();
 </script>
 
 <template>
+  <GlobalDialog />
+
   <div class="flex flex-row h-full" style="--wails-draggable: drag">
     <div class="bg-base-200 w-56">
       <div class="p-4 pb-0">

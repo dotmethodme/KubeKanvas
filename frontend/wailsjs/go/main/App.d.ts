@@ -3,6 +3,8 @@
 import {v1} from '../models';
 import {backend} from '../models';
 
+export function DeletePod(arg1:string,arg2:string,arg3:string):Promise<boolean>;
+
 export function GetAvailableContexts():Promise<Array<string>>;
 
 export function GetConfigMaps(arg1:string,arg2:string):Promise<v1.ConfigMapList>;
@@ -17,7 +19,9 @@ export function GetPersistentVolumeClaims(arg1:string,arg2:string):Promise<v1.Pe
 
 export function GetPersistentVolumes(arg1:string):Promise<v1.PersistentVolumeList>;
 
-export function GetPodLogs(arg1:string,arg2:string,arg3:string,arg4:boolean):Promise<Array<string>|string>;
+export function GetPodEvents(arg1:string,arg2:string,arg3:string):Promise<v1.EventList>;
+
+export function GetPodLogs(arg1:backend.PodLogsRequest):Promise<Array<string>|string>;
 
 export function GetPods(arg1:string,arg2:string):Promise<v1.PodList>;
 

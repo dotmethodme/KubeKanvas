@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"kubekanvas/backend"
+	"log"
 	"os/exec"
 	"strings"
 	"time"
@@ -68,15 +69,18 @@ func (a *App) GetServices(contextName string, namespace string) *corev1.ServiceL
 	return result
 }
 
-func (a *App) GetPodLogs(contextName string, namespace string, podName string, shouldIncludeTimestamp bool) ([]string, string) {
+func (a *App) GetPodLogs(req backend.PodLogsRequest) ([]string, string) {
 	tailLines := int64(200)
 
-	req := backend.GetClient(contextName).CoreV1().Pods(namespace).GetLogs(podName, &corev1.PodLogOptions{
+	apiReq := backend.GetClient(req.ContextName).CoreV1().Pods(req.Namespace).GetLogs(req.PodName, &corev1.PodLogOptions{
 		TailLines:  &tailLines,
-		Timestamps: shouldIncludeTimestamp,
+		Timestamps: req.ShouldIncludeTimestamps,
+		Container:  req.Container,
 	})
-	podLogs, err := req.Stream(context.Background())
+	podLogs, err := apiReq.Stream(context.Background())
 	if err != nil {
+		// print the error and return
+		log.Println(err.Error())
 		return nil, err.Error()
 	}
 	defer podLogs.Close()
@@ -84,6 +88,7 @@ func (a *App) GetPodLogs(contextName string, namespace string, podName string, s
 	buf := new(bytes.Buffer)
 	_, err = buf.ReadFrom(podLogs)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err.Error()
 	}
 
@@ -145,6 +150,26 @@ func (a *App) GetPodsByDeployment(contextName string, namespace string, labelSel
 	fmt.Println(labelSelector)
 	result, _ := backend.GetClient(contextName).CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
 		LabelSelector: metav1.FormatLabelSelector(&labelSelector),
+	})
+
+	return result
+}
+
+func (a *App) DeletePod(contextName string, namespace string, podName string) bool {
+	err := backend.GetClient(contextName).CoreV1().Pods(namespace).Delete(context.TODO(), podName, metav1.DeleteOptions{
+		GracePeriodSeconds: new(int64),
+	})
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+func (a *App) GetPodEvents(contextName string, namespace string, podName string) *corev1.EventList {
+	result, _ := backend.GetClient(contextName).CoreV1().Events(namespace).List(context.TODO(), metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("involvedObject.name=%s", podName),
 	})
 
 	return result

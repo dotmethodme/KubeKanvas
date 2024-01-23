@@ -12,6 +12,7 @@
     "@heroicons/vue": "^2.1.1",
     "@vueuse/core": "^10.7.2",
     "dayjs": "^1.11.10",
+    "highlight.js": "^11.9.0",
     "pinia": "^2.1.7",
     "vue": "^3.3.9",
     "vue-command-palette": "^0.2.3",

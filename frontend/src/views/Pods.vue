@@ -8,6 +8,7 @@ import { useGlobalStore } from "../stores/global";
 import SelectedResource from "../components/SelectedResource.vue";
 import PodLogs from "../components/PodLogs.vue";
 import { getMetadata } from "../utils/k8s";
+import PodGeneral from "../components/PodGeneral.vue";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
@@ -105,8 +106,16 @@ const selectedPodName = computed(() => {
     v-model="selectedId"
     :allResources="(items?.items as any)"
   >
-    <template #logs>
-      <PodLogs v-if="selectedPodName" v-model="selectedPodName" />
+    <template #logs="{ selectedResource }">
+      <PodLogs v-if="selectedPodName" :selectedResource="(selectedResource as any)" />
+    </template>
+
+    <template #general="{ selectedResource }">
+      <PodGeneral
+        v-if="selectedPodName"
+        :selectedResource="(selectedResource as any)"
+        :on-close-pod-view="() => (selectedId = undefined)"
+      />
     </template>
   </SelectedResource>
 </template>

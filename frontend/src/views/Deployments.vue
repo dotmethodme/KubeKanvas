@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { GetDeployments, GetPods } from "../../wailsjs/go/main/App";
-import { v1 } from "../../wailsjs/go/models";
-import { getTimeAgo } from "../utils/date";
 import { storeToRefs } from "pinia";
-import { useGlobalStore } from "../stores/global";
-import SelectedResource from "../components/SelectedResource.vue";
-import { getMetadata } from "../utils/k8s";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { GetDeployments } from "../../wailsjs/go/main/App";
+import { v1 } from "../../wailsjs/go/models";
 import DeploymentGeneral from "../components/DeploymentGeneral.vue";
+import SelectedResource from "../components/SelectedResource.vue";
+import { useGlobalStore } from "../stores/global";
+import { getTimeAgo } from "../utils/date";
+import { getMetadata } from "../utils/k8s";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);

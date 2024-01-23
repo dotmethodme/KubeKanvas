@@ -18,6 +18,26 @@ export namespace backend {
 	        this.resourceName = source["resourceName"];
 	    }
 	}
+	export class PodLogsRequest {
+	    contextName: string;
+	    namespace: string;
+	    podName: string;
+	    shouldIncludeTimestamps: boolean;
+	    container: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new PodLogsRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.contextName = source["contextName"];
+	        this.namespace = source["namespace"];
+	        this.podName = source["podName"];
+	        this.shouldIncludeTimestamps = source["shouldIncludeTimestamps"];
+	        this.container = source["container"];
+	    }
+	}
 
 }
 
@@ -3942,6 +3962,216 @@ export namespace v1 {
 	
 	
 	
+	export class EventSeries {
+	    count?: number;
+	    // Go type: MicroTime
+	    lastObservedTime?: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new EventSeries(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.count = source["count"];
+	        this.lastObservedTime = this.convertValues(source["lastObservedTime"], null);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class EventSource {
+	    component?: string;
+	    host?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new EventSource(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.component = source["component"];
+	        this.host = source["host"];
+	    }
+	}
+	export class ObjectReference {
+	    kind?: string;
+	    namespace?: string;
+	    name?: string;
+	    uid?: string;
+	    apiVersion?: string;
+	    resourceVersion?: string;
+	    fieldPath?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ObjectReference(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.kind = source["kind"];
+	        this.namespace = source["namespace"];
+	        this.name = source["name"];
+	        this.uid = source["uid"];
+	        this.apiVersion = source["apiVersion"];
+	        this.resourceVersion = source["resourceVersion"];
+	        this.fieldPath = source["fieldPath"];
+	    }
+	}
+	export class Event {
+	    kind?: string;
+	    apiVersion?: string;
+	    name?: string;
+	    generateName?: string;
+	    namespace?: string;
+	    selfLink?: string;
+	    uid?: string;
+	    resourceVersion?: string;
+	    generation?: number;
+	    // Go type: Time
+	    creationTimestamp?: any;
+	    // Go type: Time
+	    deletionTimestamp?: any;
+	    deletionGracePeriodSeconds?: number;
+	    labels?: {[key: string]: string};
+	    annotations?: {[key: string]: string};
+	    ownerReferences?: OwnerReference[];
+	    finalizers?: string[];
+	    managedFields?: ManagedFieldsEntry[];
+	    involvedObject: ObjectReference;
+	    reason?: string;
+	    message?: string;
+	    source?: EventSource;
+	    // Go type: Time
+	    firstTimestamp?: any;
+	    // Go type: Time
+	    lastTimestamp?: any;
+	    count?: number;
+	    type?: string;
+	    // Go type: MicroTime
+	    eventTime?: any;
+	    series?: EventSeries;
+	    action?: string;
+	    related?: ObjectReference;
+	    reportingComponent: string;
+	    reportingInstance: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Event(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.kind = source["kind"];
+	        this.apiVersion = source["apiVersion"];
+	        this.name = source["name"];
+	        this.generateName = source["generateName"];
+	        this.namespace = source["namespace"];
+	        this.selfLink = source["selfLink"];
+	        this.uid = source["uid"];
+	        this.resourceVersion = source["resourceVersion"];
+	        this.generation = source["generation"];
+	        this.creationTimestamp = this.convertValues(source["creationTimestamp"], null);
+	        this.deletionTimestamp = this.convertValues(source["deletionTimestamp"], null);
+	        this.deletionGracePeriodSeconds = source["deletionGracePeriodSeconds"];
+	        this.labels = source["labels"];
+	        this.annotations = source["annotations"];
+	        this.ownerReferences = this.convertValues(source["ownerReferences"], OwnerReference);
+	        this.finalizers = source["finalizers"];
+	        this.managedFields = this.convertValues(source["managedFields"], ManagedFieldsEntry);
+	        this.involvedObject = this.convertValues(source["involvedObject"], ObjectReference);
+	        this.reason = source["reason"];
+	        this.message = source["message"];
+	        this.source = this.convertValues(source["source"], EventSource);
+	        this.firstTimestamp = this.convertValues(source["firstTimestamp"], null);
+	        this.lastTimestamp = this.convertValues(source["lastTimestamp"], null);
+	        this.count = source["count"];
+	        this.type = source["type"];
+	        this.eventTime = this.convertValues(source["eventTime"], null);
+	        this.series = this.convertValues(source["series"], EventSeries);
+	        this.action = source["action"];
+	        this.related = this.convertValues(source["related"], ObjectReference);
+	        this.reportingComponent = source["reportingComponent"];
+	        this.reportingInstance = source["reportingInstance"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class EventList {
+	    kind?: string;
+	    apiVersion?: string;
+	    selfLink?: string;
+	    resourceVersion?: string;
+	    continue?: string;
+	    remainingItemCount?: number;
+	    items: Event[];
+	
+	    static createFrom(source: any = {}) {
+	        return new EventList(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.kind = source["kind"];
+	        this.apiVersion = source["apiVersion"];
+	        this.selfLink = source["selfLink"];
+	        this.resourceVersion = source["resourceVersion"];
+	        this.continue = source["continue"];
+	        this.remainingItemCount = source["remainingItemCount"];
+	        this.items = this.convertValues(source["items"], Event);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
+	
 	
 	
 	
@@ -4244,30 +4474,7 @@ export namespace v1 {
 	
 	
 	
-	export class ObjectReference {
-	    kind?: string;
-	    namespace?: string;
-	    name?: string;
-	    uid?: string;
-	    apiVersion?: string;
-	    resourceVersion?: string;
-	    fieldPath?: string;
 	
-	    static createFrom(source: any = {}) {
-	        return new ObjectReference(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.kind = source["kind"];
-	        this.namespace = source["namespace"];
-	        this.name = source["name"];
-	        this.uid = source["uid"];
-	        this.apiVersion = source["apiVersion"];
-	        this.resourceVersion = source["resourceVersion"];
-	        this.fieldPath = source["fieldPath"];
-	    }
-	}
 	export class PersistentVolumeStatus {
 	    phase?: string;
 	    message?: string;

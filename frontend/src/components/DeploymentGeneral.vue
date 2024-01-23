@@ -1,18 +1,12 @@
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
-import { v1 } from "../../wailsjs/go/models";
-import { getMetadata } from "../utils/k8s";
-import {
-  ArrowPathIcon,
-  ArrowUpIcon,
-  ArrowUpRightIcon,
-  ChevronRightIcon,
-  InformationCircleIcon,
-} from "@heroicons/vue/24/outline";
-import { GetPodsByDeployment, RestartDeployment } from "../../wailsjs/go/main/App";
-import { useGlobalStore } from "../stores/global";
-import PodTable from "./PodTable.vue";
+import { ArrowPathIcon, ArrowUpRightIcon, ChevronRightIcon } from "@heroicons/vue/24/outline";
 import { useAsyncState } from "@vueuse/core";
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import { GetPodsByDeployment, RestartDeployment } from "../../wailsjs/go/main/App";
+import { v1 } from "../../wailsjs/go/models";
+import { useGlobalStore } from "../stores/global";
+import { getMetadata } from "../utils/k8s";
+import PodTable from "./PodTable.vue";
 
 const props = defineProps<{
   selectedResource: v1.Deployment;
