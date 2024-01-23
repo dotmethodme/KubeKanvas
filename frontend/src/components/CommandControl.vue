@@ -11,13 +11,11 @@ const { contexts, namespaces } = storeToRefs(globalStore);
 function onContextChange(name: string) {
   globalStore.setActiveContext(name);
   visible.value = false;
-  topCommand.value = undefined;
 }
 
 function onNamespaceChange(name: string) {
   globalStore.setActiveNamespace(name);
   visible.value = false;
-  topCommand.value = undefined;
 }
 
 const visible = ref(false);
@@ -36,32 +34,41 @@ watch([slash, at], (v) => {
 watch(esc, (v) => {
   if (v) {
     visible.value = false;
-    topCommand.value = undefined;
     commandSearch.value = "";
   }
 });
 
-const topCommand = ref<"context" | "namespace" | undefined>(undefined);
-function selectTopCommand(cmd: "context" | "namespace") {
-  topCommand.value = cmd;
-  commandSearch.value = "";
-}
-
 var shouldShowQuickNs = ref(false);
 var shouldShowQuickCtx = ref(false);
-watch(commandSearch, (v) => {
-  if (v.startsWith("/")) {
-    shouldShowQuickNs.value = true;
-  } else {
-    shouldShowQuickNs.value = false;
-  }
 
-  if (v.startsWith("@")) {
-    shouldShowQuickCtx.value = true;
-  } else {
-    shouldShowQuickCtx.value = false;
-  }
-});
+watch(
+  commandSearch,
+  (v) => {
+    console.log("commandSearch", v);
+    if (v.startsWith("/")) {
+      shouldShowQuickNs.value = true;
+    } else {
+      shouldShowQuickNs.value = false;
+    }
+
+    if (v.startsWith("@")) {
+      shouldShowQuickCtx.value = true;
+    } else {
+      shouldShowQuickCtx.value = false;
+    }
+  },
+  { immediate: true, deep: true }
+);
+
+const searchInput = ref<HTMLInputElement | null>(null);
+function selectContext() {
+  commandSearch.value = "@";
+  if (!searchInput.value) return;
+}
+function selectNamespace() {
+  commandSearch.value = "/";
+  if (!searchInput.value) return;
+}
 </script>
 
 <template>
@@ -69,9 +76,10 @@ watch(commandSearch, (v) => {
     <Command.Dialog :visible="visible" theme="raycast">
       <template #header>
         <Command.Input
-          v-model="commandSearch"
+          :value="commandSearch"
+          @update:value="(v) => (commandSearch = v)"
           placeholder="Type a command or search..."
-          @update:value="(x) => (commandSearch = x)"
+          ref="searchInput"
         />
       </template>
       <template #body>
@@ -100,41 +108,9 @@ watch(commandSearch, (v) => {
             </Command.Item>
           </template>
 
-          <template v-if="!topCommand">
-            <Command.Item
-              data-value="Change namespace ns"
-              @select="() => selectTopCommand('namespace')"
-            >
-              Change namespace
-            </Command.Item>
-            <Command.Item
-              data-value="Change context"
-              @select="() => selectTopCommand('context')"
-            >
-              Change context
-            </Command.Item>
-          </template>
-
-          <template v-if="topCommand === 'context'">
-            <Command.Item
-              v-for="context in contexts"
-              :key="context.name"
-              :data-value="context.name"
-              @select="() => onContextChange(context.name)"
-            >
-              {{ context.name }}
-            </Command.Item>
-          </template>
-
-          <template v-if="topCommand === 'namespace'">
-            <Command.Item
-              v-for="namespace in namespaces"
-              :key="namespace"
-              :data-value="namespace"
-              @select="() => onNamespaceChange(namespace)"
-            >
-              {{ namespace }}
-            </Command.Item>
+          <template v-if="!shouldShowQuickNs && !shouldShowQuickNs">
+            <Command.Item data-value="Change namespace ns" @select="selectNamespace"> Change namespace </Command.Item>
+            <Command.Item data-value="Change context" @select="selectContext"> Change context </Command.Item>
           </template>
         </Command.List>
       </template>
