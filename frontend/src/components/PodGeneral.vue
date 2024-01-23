@@ -38,7 +38,7 @@ async function fetchData() {
   return result.items;
 }
 
-const { state, isLoading, execute } = useAsyncState(fetchData, [], { immediate: true, resetOnExecute: false });
+const { state, isLoading, execute } = useAsyncState(fetchData, null, { immediate: true, resetOnExecute: false });
 
 const timeout = ref<number>();
 onMounted(() => {
@@ -91,7 +91,10 @@ onUnmounted(() => {
 
   <div class="mt-4"></div>
 
-  <table class="table table-xs">
+  <div v-if="isLoading && !state" class="flex justify-center">
+    <span class="loading loading-ring loading-lg h-40"></span>
+  </div>
+  <table class="table table-xs" v-else>
     <thead>
       <tr>
         <th>Events</th>
@@ -106,9 +109,7 @@ onUnmounted(() => {
           <span class="text-sm">{{ item.message }}</span>
         </td>
         <td>
-          <div class="flex flex-col">
-            <span class="font-semibold">{{ item.reason }}</span>
-          </div>
+          <span class="font-semibold">{{ item.reason }}</span>
         </td>
         <td>
           <span class="text-sm">{{ getTimeAgo(item.lastTimestamp) }}</span>

@@ -168,9 +168,14 @@ func (a *App) DeletePod(contextName string, namespace string, podName string) bo
 }
 
 func (a *App) GetPodEvents(contextName string, namespace string, podName string) *corev1.EventList {
-	result, _ := backend.GetClient(contextName).CoreV1().Events(namespace).List(context.TODO(), metav1.ListOptions{
+	result, err := backend.GetClient(contextName).CoreV1().Events(namespace).List(context.TODO(), metav1.ListOptions{
 		FieldSelector: fmt.Sprintf("involvedObject.name=%s", podName),
 	})
+
+	if err != nil {
+		log.Println(err.Error())
+		return nil
+	}
 
 	return result
 }
