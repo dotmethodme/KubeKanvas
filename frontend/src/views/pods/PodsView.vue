@@ -1,19 +1,37 @@
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { GetPods } from "../../wailsjs/go/main/App";
-import { v1 } from "../../wailsjs/go/models";
-import { getTimeAgo } from "../utils/date";
+import { GetPods } from "../../../wailsjs/go/main/App";
+import { v1 } from "../../../wailsjs/go/models";
+import { getTimeAgo } from "../../utils/date";
 import { storeToRefs } from "pinia";
-import { useGlobalStore } from "../stores/global";
-import SelectedResource from "../components/SelectedResource.vue";
-import PodLogs from "../components/PodLogs.vue";
-import { getMetadata } from "../utils/k8s";
-import PodGeneral from "../components/PodGeneral.vue";
+import { useGlobalStore } from "../../stores/global";
+import SelectedResource from "../../components/SelectedResource.vue";
+import PodLogs from "./PodLogs.vue";
+import { getMetadata } from "../../utils/k8s";
+import PodGeneral from "./PodGeneral.vue";
+import { useRouter } from "vue-router";
+import PodFooter from "./PodFooter.vue";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
 const items = ref<v1.PodList>();
 const selectedId = ref<string>();
+const router = useRouter();
+
+watch(selectedId, (value) => {
+  if (!value) {
+    router.replace({ query: {} });
+    return;
+  }
+  router.replace({ query: { pod: value } });
+});
+
+onMounted(() => {
+  const query = router.currentRoute.value.query;
+  if (query.pod) {
+    selectedId.value = query.pod as string;
+  }
+});
 
 function getData() {
   if (!activeContextName.value || !activeNamespace.value) return;
@@ -116,6 +134,10 @@ const selectedPodName = computed(() => {
         :selectedResource="(selectedResource as any)"
         :on-close-pod-view="() => (selectedId = undefined)"
       />
+    </template>
+
+    <template #footer="{ selectedResource }">
+      <PodFooter :selectedResource="(selectedResource as any)" />
     </template>
   </SelectedResource>
 </template>

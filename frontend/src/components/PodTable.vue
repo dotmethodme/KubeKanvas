@@ -2,11 +2,26 @@
 import { v1 } from "../../wailsjs/go/models";
 import { getTimeAgo } from "../utils/date";
 import { getMetadata } from "../utils/k8s";
+import { useRouter } from "vue-router";
 
 const { items } = defineProps<{
   items: v1.Pod[];
 }>();
+
+
+const router = useRouter();
+
+function handleLink(item: v1.Pod) {
+  router.push({
+    name: "Pods",
+    query: {
+      pod: getMetadata(item)?.uid,
+    },
+  });
+}
 </script>
+
+
 
 <template>
   <table class="table table-xs">
@@ -21,7 +36,7 @@ const { items } = defineProps<{
       </tr>
     </thead>
     <tbody>
-      <tr v-for="item in items || []" class="cursor-pointer hover:bg-base-300">
+      <tr v-for="item in items || []" class="cursor-pointer hover:bg-base-300" @click="()=>handleLink(item)">
         <td>
           <div class="flex flex-col">
             <span class="font-semibold">{{ getMetadata(item)?.name }}</span>

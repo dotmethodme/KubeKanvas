@@ -1,4 +1,5 @@
-import PodsVue from "./views/Pods.vue";
+import PodsVue from "./views/pods/PodsView.vue";
+
 import * as VueRouter from "vue-router";
 
 // 3. Create the router instance and pass the `routes` option
@@ -13,6 +14,7 @@ export const router = VueRouter.createRouter({
       redirect: "/pods",
     },
     {
+      name: "Pods",
       path: "/pods",
       component: PodsVue,
     },

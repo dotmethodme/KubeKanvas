@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@vueuse/router": "^10.7.2"
+  }
+}

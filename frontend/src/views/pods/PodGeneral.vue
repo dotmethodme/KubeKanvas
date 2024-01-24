@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { ChevronRightIcon, TrashIcon } from "@heroicons/vue/24/outline";
 import { computed, onMounted, onUnmounted, ref } from "vue";
-import { DeletePod, GetPodEvents } from "../../wailsjs/go/main/App";
-import { v1 } from "../../wailsjs/go/models";
-import { useGlobalStore } from "../stores/global";
-import { getMetadata } from "../utils/k8s";
-import { useDialogStore } from "../stores/dialog";
+import { DeletePod, GetPodEvents } from "../../../wailsjs/go/main/App";
+import { v1 } from "../../../wailsjs/go/models";
+import { useGlobalStore } from "../../stores/global";
+import { getMetadata } from "../../utils/k8s";
+import { useDialogStore } from "../../stores/dialog";
 import { useAsyncState } from "@vueuse/core";
-import { getTimeAgo } from "../utils/date";
+import { getTimeAgo } from "../../utils/date";
 
 const props = defineProps<{
   selectedResource: v1.Pod;
@@ -54,21 +54,7 @@ onUnmounted(() => {
 
   <div class="mt-4"></div>
 
-  <div class="flex justify-between">
-    <div>
-      <div class="inline-flex items-center">
-        <span class="text-lg tooltip cursor-pointer" data-tip="Namespace">
-          {{ metadata.namespace }}
-        </span>
-        <ChevronRightIcon class="w-5 h-5 mx-2" />
-        <span class="text-lg tooltip cursor-pointer" data-tip="Resource type"> deployments </span>
-        <ChevronRightIcon class="w-5 h-5 mx-2" />
-        <span class="text-lg tooltip cursor-pointer" data-tip="Deployment name"> {{ metadata.name }}</span>
-      </div>
-    </div>
-
-    <div class="mt-10"></div>
-
+  <div class="flex justify-end">
     <div>
       <button class="btn btn-outline btn-error btn-sm mr-2" @click="handleDelete">
         <TrashIcon class="h-5 w-5" />
