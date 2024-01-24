@@ -106,6 +106,7 @@ const selectedPodName = computed(() => {
           'bg-base-200': selectedId === getMetadata(item)?.uid,
           'text-red-600 opacity-70': item.friendlyStatus === 'Error',
           'text-blue-400': item.friendlyStatus === 'Waiting',
+          'text-gray-600': item.friendlyStatus === 'Finished',
         }"
         @click="selectedId = getMetadata(item)?.uid"
       >

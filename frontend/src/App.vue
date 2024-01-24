@@ -7,7 +7,7 @@ import { GetAvailableContexts, GetNamespaces } from "../wailsjs/go/main/App";
 import CommandControl from "./components/CommandControl.vue";
 import { Contexts, useGlobalStore } from "./stores/global";
 import { menu } from "./utils/menu";
-import { WindowMinimise, Quit, WindowMaximise } from "../wailsjs/runtime";
+import { WindowMinimise, Quit, WindowMaximise } from "wailsjs/runtime";
 import { getMetadata } from "./utils/k8s";
 import { notEmpty } from "./utils/array";
 import GlobalDialog from "./components/GlobalDialog.vue";
@@ -142,7 +142,7 @@ const selectContext = ref<HTMLSelectElement>();
           <Icon icon="mdi:close" />
         </button>
       </div>
-      <div class="px-4 overflow-auto h-full" style="--wails-draggable: no-drag">
+      <div class="px-6 overflow-auto h-full" style="--wails-draggable: no-drag">
         <router-view></router-view>
       </div>
     </div>
