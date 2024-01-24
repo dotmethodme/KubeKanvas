@@ -42,6 +42,10 @@ export function GetPodLogs(arg1) {
   return window['go']['main']['App']['GetPodLogs'](arg1);
 }
 
+export function GetPodMetrics(arg1, arg2, arg3) {
+  return window['go']['main']['App']['GetPodMetrics'](arg1, arg2, arg3);
+}
+
 export function GetPods(arg1, arg2) {
   return window['go']['main']['App']['GetPods'](arg1, arg2);
 }
@@ -64,6 +68,10 @@ export function GetServices(arg1, arg2) {
 
 export function GetStatefulSets(arg1, arg2) {
   return window['go']['main']['App']['GetStatefulSets'](arg1, arg2);
+}
+
+export function ListPodMetrics(arg1, arg2) {
+  return window['go']['main']['App']['ListPodMetrics'](arg1, arg2);
 }
 
 export function RestartDeployment(arg1, arg2, arg3) {

@@ -160,6 +160,8 @@ export namespace v1 {
 	    namespaces?: string[];
 	    topologyKey: string;
 	    namespaceSelector?: LabelSelector;
+	    matchLabelKeys?: string[];
+	    mismatchLabelKeys?: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new PodAffinityTerm(source);
@@ -171,6 +173,8 @@ export namespace v1 {
 	        this.namespaces = source["namespaces"];
 	        this.topologyKey = source["topologyKey"];
 	        this.namespaceSelector = this.convertValues(source["namespaceSelector"], LabelSelector);
+	        this.matchLabelKeys = source["matchLabelKeys"];
+	        this.mismatchLabelKeys = source["mismatchLabelKeys"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -800,10 +804,23 @@ export namespace v1 {
 		    return a;
 		}
 	}
+	export class SleepAction {
+	    seconds: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new SleepAction(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.seconds = source["seconds"];
+	    }
+	}
 	export class LifecycleHandler {
 	    exec?: ExecAction;
 	    httpGet?: HTTPGetAction;
 	    tcpSocket?: TCPSocketAction;
+	    sleep?: SleepAction;
 	
 	    static createFrom(source: any = {}) {
 	        return new LifecycleHandler(source);
@@ -814,6 +831,7 @@ export namespace v1 {
 	        this.exec = this.convertValues(source["exec"], ExecAction);
 	        this.httpGet = this.convertValues(source["httpGet"], HTTPGetAction);
 	        this.tcpSocket = this.convertValues(source["tcpSocket"], TCPSocketAction);
+	        this.sleep = this.convertValues(source["sleep"], SleepAction);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -2101,15 +2119,48 @@ export namespace v1 {
 	        this.name = source["name"];
 	    }
 	}
+	export class VolumeResourceRequirements {
+	    limits?: {[key: string]: resource.Quantity};
+	    requests?: {[key: string]: resource.Quantity};
+	
+	    static createFrom(source: any = {}) {
+	        return new VolumeResourceRequirements(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.limits = this.convertValues(source["limits"], resource.Quantity, true);
+	        this.requests = this.convertValues(source["requests"], resource.Quantity, true);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class PersistentVolumeClaimSpec {
 	    accessModes?: string[];
 	    selector?: LabelSelector;
-	    resources?: ResourceRequirements;
+	    resources?: VolumeResourceRequirements;
 	    volumeName?: string;
 	    storageClassName?: string;
 	    volumeMode?: string;
 	    dataSource?: TypedLocalObjectReference;
 	    dataSourceRef?: TypedObjectReference;
+	    volumeAttributesClassName?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new PersistentVolumeClaimSpec(source);
@@ -2119,12 +2170,13 @@ export namespace v1 {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.accessModes = source["accessModes"];
 	        this.selector = this.convertValues(source["selector"], LabelSelector);
-	        this.resources = this.convertValues(source["resources"], ResourceRequirements);
+	        this.resources = this.convertValues(source["resources"], VolumeResourceRequirements);
 	        this.volumeName = source["volumeName"];
 	        this.storageClassName = source["storageClassName"];
 	        this.volumeMode = source["volumeMode"];
 	        this.dataSource = this.convertValues(source["dataSource"], TypedLocalObjectReference);
 	        this.dataSourceRef = this.convertValues(source["dataSourceRef"], TypedObjectReference);
+	        this.volumeAttributesClassName = source["volumeAttributesClassName"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -2378,6 +2430,44 @@ export namespace v1 {
 	        this.readOnly = source["readOnly"];
 	    }
 	}
+	export class ClusterTrustBundleProjection {
+	    name?: string;
+	    signerName?: string;
+	    labelSelector?: LabelSelector;
+	    optional?: boolean;
+	    path: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ClusterTrustBundleProjection(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.signerName = source["signerName"];
+	        this.labelSelector = this.convertValues(source["labelSelector"], LabelSelector);
+	        this.optional = source["optional"];
+	        this.path = source["path"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class ServiceAccountTokenProjection {
 	    audience?: string;
 	    expirationSeconds?: number;
@@ -2501,6 +2591,8 @@ export namespace v1 {
 	    configMap?: any;
 	    // Go type: ServiceAccountTokenProjection
 	    serviceAccountToken?: any;
+	    // Go type: ClusterTrustBundleProjection
+	    clusterTrustBundle?: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new VolumeProjection(source);
@@ -2512,6 +2604,7 @@ export namespace v1 {
 	        this.downwardAPI = this.convertValues(source["downwardAPI"], null);
 	        this.configMap = this.convertValues(source["configMap"], null);
 	        this.serviceAccountToken = this.convertValues(source["serviceAccountToken"], null);
+	        this.clusterTrustBundle = this.convertValues(source["clusterTrustBundle"], null);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -4211,6 +4304,7 @@ export namespace v1 {
 	export class LoadBalancerIngress {
 	    ip?: string;
 	    hostname?: string;
+	    ipMode?: string;
 	    ports?: PortStatus[];
 	
 	    static createFrom(source: any = {}) {
@@ -4221,6 +4315,7 @@ export namespace v1 {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.ip = source["ip"];
 	        this.hostname = source["hostname"];
+	        this.ipMode = source["ipMode"];
 	        this.ports = this.convertValues(source["ports"], PortStatus);
 	    }
 	
@@ -4273,6 +4368,20 @@ export namespace v1 {
 		}
 	}
 	
+	export class ModifyVolumeStatus {
+	    targetVolumeAttributesClassName?: string;
+	    status: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ModifyVolumeStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.targetVolumeAttributesClassName = source["targetVolumeAttributesClassName"];
+	        this.status = source["status"];
+	    }
+	}
 	export class NamespaceCondition {
 	    type: string;
 	    status: string;
@@ -5012,6 +5121,7 @@ export namespace v1 {
 	    mountOptions?: string[];
 	    volumeMode?: string;
 	    nodeAffinity?: VolumeNodeAffinity;
+	    volumeAttributesClassName?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new PersistentVolumeSpec(source);
@@ -5049,6 +5159,7 @@ export namespace v1 {
 	        this.mountOptions = source["mountOptions"];
 	        this.volumeMode = source["volumeMode"];
 	        this.nodeAffinity = this.convertValues(source["nodeAffinity"], VolumeNodeAffinity);
+	        this.volumeAttributesClassName = source["volumeAttributesClassName"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -5186,6 +5297,8 @@ export namespace v1 {
 	    conditions?: PersistentVolumeClaimCondition[];
 	    allocatedResources?: {[key: string]: resource.Quantity};
 	    allocatedResourceStatuses?: {[key: string]: string};
+	    currentVolumeAttributesClassName?: string;
+	    modifyVolumeStatus?: ModifyVolumeStatus;
 	
 	    static createFrom(source: any = {}) {
 	        return new PersistentVolumeClaimStatus(source);
@@ -5199,6 +5312,8 @@ export namespace v1 {
 	        this.conditions = this.convertValues(source["conditions"], PersistentVolumeClaimCondition);
 	        this.allocatedResources = this.convertValues(source["allocatedResources"], resource.Quantity, true);
 	        this.allocatedResourceStatuses = source["allocatedResourceStatuses"];
+	        this.currentVolumeAttributesClassName = source["currentVolumeAttributesClassName"];
+	        this.modifyVolumeStatus = this.convertValues(source["modifyVolumeStatus"], ModifyVolumeStatus);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -6074,6 +6189,7 @@ export namespace v1 {
 	
 	
 	
+	
 	export class StatefulSetCondition {
 	    type: string;
 	    status: string;
@@ -6396,6 +6512,158 @@ export namespace v1 {
 	
 	
 	
+	
+
+}
+
+export namespace v1beta1 {
+	
+	export class ContainerMetrics {
+	    name: string;
+	    usage: {[key: string]: resource.Quantity};
+	
+	    static createFrom(source: any = {}) {
+	        return new ContainerMetrics(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.usage = this.convertValues(source["usage"], resource.Quantity, true);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class PodMetrics {
+	    kind?: string;
+	    apiVersion?: string;
+	    name?: string;
+	    generateName?: string;
+	    namespace?: string;
+	    selfLink?: string;
+	    uid?: string;
+	    resourceVersion?: string;
+	    generation?: number;
+	    // Go type: v1
+	    creationTimestamp?: any;
+	    // Go type: v1
+	    deletionTimestamp?: any;
+	    deletionGracePeriodSeconds?: number;
+	    labels?: {[key: string]: string};
+	    annotations?: {[key: string]: string};
+	    ownerReferences?: v1.OwnerReference[];
+	    finalizers?: string[];
+	    managedFields?: v1.ManagedFieldsEntry[];
+	    // Go type: v1
+	    timestamp: any;
+	    // Go type: v1
+	    window: any;
+	    containers: ContainerMetrics[];
+	
+	    static createFrom(source: any = {}) {
+	        return new PodMetrics(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.kind = source["kind"];
+	        this.apiVersion = source["apiVersion"];
+	        this.name = source["name"];
+	        this.generateName = source["generateName"];
+	        this.namespace = source["namespace"];
+	        this.selfLink = source["selfLink"];
+	        this.uid = source["uid"];
+	        this.resourceVersion = source["resourceVersion"];
+	        this.generation = source["generation"];
+	        this.creationTimestamp = this.convertValues(source["creationTimestamp"], null);
+	        this.deletionTimestamp = this.convertValues(source["deletionTimestamp"], null);
+	        this.deletionGracePeriodSeconds = source["deletionGracePeriodSeconds"];
+	        this.labels = source["labels"];
+	        this.annotations = source["annotations"];
+	        this.ownerReferences = this.convertValues(source["ownerReferences"], v1.OwnerReference);
+	        this.finalizers = source["finalizers"];
+	        this.managedFields = this.convertValues(source["managedFields"], v1.ManagedFieldsEntry);
+	        this.timestamp = this.convertValues(source["timestamp"], null);
+	        this.window = this.convertValues(source["window"], null);
+	        this.containers = this.convertValues(source["containers"], ContainerMetrics);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class PodMetricsList {
+	    kind?: string;
+	    apiVersion?: string;
+	    selfLink?: string;
+	    resourceVersion?: string;
+	    continue?: string;
+	    remainingItemCount?: number;
+	    items: PodMetrics[];
+	
+	    static createFrom(source: any = {}) {
+	        return new PodMetricsList(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.kind = source["kind"];
+	        this.apiVersion = source["apiVersion"];
+	        this.selfLink = source["selfLink"];
+	        this.resourceVersion = source["resourceVersion"];
+	        this.continue = source["continue"];
+	        this.remainingItemCount = source["remainingItemCount"];
+	        this.items = this.convertValues(source["items"], PodMetrics);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 
 }
 

@@ -13,8 +13,8 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/metrics/pkg/apis/metrics/v1beta1"
 )
 
 // App struct
@@ -137,9 +137,10 @@ func (a *App) GetAvailableContexts() []string {
 func (a *App) RestartDeployment(contextName string, namespace string, deploymentName string) bool {
 	data := fmt.Sprintf(`{"spec": {"template": {"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": "%s"}}}}}`, time.Now().Format("20060102150405"))
 
-	_, err := backend.GetClient(contextName).AppsV1().Deployments(namespace).Patch(context.TODO(), deploymentName, types.StrategicMergePatchType, []byte(data), v1.PatchOptions{})
+	_, err := backend.GetClient(contextName).AppsV1().Deployments(namespace).Patch(context.TODO(), deploymentName, types.StrategicMergePatchType, []byte(data), metav1.PatchOptions{})
 
 	if err != nil {
+		log.Println(err.Error())
 		return false
 	}
 
@@ -161,6 +162,7 @@ func (a *App) DeletePod(contextName string, namespace string, podName string) bo
 	})
 
 	if err != nil {
+		log.Println(err.Error())
 		return false
 	}
 
@@ -171,6 +173,28 @@ func (a *App) GetPodEvents(contextName string, namespace string, podName string)
 	result, err := backend.GetClient(contextName).CoreV1().Events(namespace).List(context.TODO(), metav1.ListOptions{
 		FieldSelector: fmt.Sprintf("involvedObject.name=%s", podName),
 	})
+
+	if err != nil {
+		log.Println(err.Error())
+		return nil
+	}
+
+	return result
+}
+
+func (a *App) GetPodMetrics(contextName string, namespace string, podName string) *v1beta1.PodMetrics {
+	result, err := backend.GetMetricsClient(contextName).MetricsV1beta1().PodMetricses(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
+
+	if err != nil {
+		log.Println(err.Error())
+		return nil
+	}
+
+	return result
+}
+
+func (a *App) ListPodMetrics(contextName string, namespace string) *v1beta1.PodMetricsList {
+	result, err := backend.GetMetricsClient(contextName).MetricsV1beta1().PodMetricses(namespace).List(context.TODO(), metav1.ListOptions{})
 
 	if err != nil {
 		log.Println(err.Error())

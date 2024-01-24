@@ -64,14 +64,23 @@ onMounted(async () => {
   await fetchData();
 
   setTimeout(() => {
-    container.value?.scrollTo(0, container.value?.scrollHeight);
+    const left = container.value?.scrollLeft;
+    container.value?.scrollTo({
+      top: container.value?.scrollHeight,
+      left: left,
+    });
   }, 100);
 
   interval.value = setInterval(() => {
     if (!shouldFollow.value) return;
     fetchData();
     setTimeout(() => {
-      container.value?.scrollTo(0, container.value?.scrollHeight);
+      const left = container.value?.scrollLeft;
+      container.value?.scrollTo({
+        top: container.value?.scrollHeight,
+        left: left,
+        behavior: "smooth",
+      });
     }, 10);
   }, 1000);
 });

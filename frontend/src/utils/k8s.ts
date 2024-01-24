@@ -1,3 +1,5 @@
+import { v1 } from "wailsjs/go/models";
+
 export type GenericResourceWithMetadata = {
   metadata: Metadata;
 };
@@ -14,4 +16,16 @@ export function getMetadata(resource: any): Metadata | undefined {
   if ("metadata" in resource) {
     return resource.metadata as Metadata;
   }
+}
+
+export type PodStatus = "Running" | "Waiting" | "Terminated" | "Unknown" | "Finished" | "Error";
+
+export function getPodStatus(item: v1.Pod): PodStatus {
+  return item.status?.containerStatuses?.[0].state?.running
+    ? "Running"
+    : item.status?.containerStatuses?.[0].state?.waiting
+    ? "Waiting"
+    : item.status?.containerStatuses?.[0].state?.terminated?.exitCode === 0
+    ? "Finished"
+    : "Error";
 }

@@ -7,6 +7,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
+
 	//
 	// Uncomment to load all auth plugins
 	// _ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -15,6 +16,8 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/azure"
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
+
+	metricsv "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
 func CreateClient(context string) *kubernetes.Clientset {
@@ -42,6 +45,32 @@ func CreateClient(context string) *kubernetes.Clientset {
 	return clientset
 }
 
+func CreateMetricsClient(context string) *metricsv.Clientset {
+	var kubeconfig string
+
+	if home := homedir.HomeDir(); home != "" {
+		kubeconfig = filepath.Join(home, ".kube", "config")
+	} else {
+		panic("Missing kube config")
+	}
+
+	// use the current context in kubeconfig
+	config, err := buildConfigWithContextFromFlags(context, kubeconfig)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// create the clientset
+	clientset, err := metricsv.NewForConfig(config)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return clientset
+
+}
+
 func buildConfigWithContextFromFlags(context string, kubeconfigPath string) (*rest.Config, error) {
 	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
@@ -52,6 +81,10 @@ func buildConfigWithContextFromFlags(context string, kubeconfigPath string) (*re
 
 func GetClient(context string) *kubernetes.Clientset {
 	return CreateClient(context)
+}
+
+func GetMetricsClient(context string) *metricsv.Clientset {
+	return CreateMetricsClient(context)
 }
 
 func GetAvailableContexts() []string {
