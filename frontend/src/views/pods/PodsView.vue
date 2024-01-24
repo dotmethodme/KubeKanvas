@@ -10,7 +10,7 @@ import PodLogs from "./PodLogs.vue";
 import { getMetadata } from "../../utils/k8s";
 import PodGeneral from "./PodGeneral.vue";
 import { useRouter } from "vue-router";
-import PodFooter from "./PodFooter.vue";
+import Footer from "@/components/Footer.vue";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
@@ -137,7 +137,7 @@ const selectedPodName = computed(() => {
     </template>
 
     <template #footer="{ selectedResource }">
-      <PodFooter :selectedResource="(selectedResource as any)" />
+      <Footer :selectedResource="(selectedResource as any)" resource-type="pods" />
     </template>
   </SelectedResource>
 </template>

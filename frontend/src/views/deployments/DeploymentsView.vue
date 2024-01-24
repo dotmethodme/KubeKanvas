@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { GetDeployments } from "../../wailsjs/go/main/App";
-import { v1 } from "../../wailsjs/go/models";
-import DeploymentGeneral from "../components/DeploymentGeneral.vue";
-import SelectedResource from "../components/SelectedResource.vue";
-import { useGlobalStore } from "../stores/global";
-import { getTimeAgo } from "../utils/date";
-import { getMetadata } from "../utils/k8s";
+import { GetDeployments } from "wailsjs/go/main/App";
+import { v1 } from "wailsjs/go/models";
+import DeploymentGeneral from "@/components/DeploymentGeneral.vue";
+import SelectedResource from "@/components/SelectedResource.vue";
+import { useGlobalStore } from "@/stores/global";
+import { getTimeAgo } from "@/utils/date";
+import { getMetadata } from "@/utils/k8s";
+import Footer from "@/components/Footer.vue";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
@@ -85,6 +86,10 @@ watch([activeContextName, activeNamespace], getData);
   >
     <template #general="{ selectedResource }">
       <DeploymentGeneral v-if="selectedResource" :selectedResource="(selectedResource as any)" />
+    </template>
+
+    <template #footer="{ selectedResource }">
+      <Footer :selectedResource="(selectedResource as any)" resource-type="deployments"></Footer>
     </template>
   </SelectedResource>
 </template>

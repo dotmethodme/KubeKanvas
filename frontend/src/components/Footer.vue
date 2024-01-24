@@ -1,17 +1,18 @@
 <script lang="ts" setup>
 import { ChevronRightIcon } from "@heroicons/vue/24/outline";
 import { computed } from "vue";
-import { v1 } from "../../../wailsjs/go/models";
-import { getMetadata } from "../../utils/k8s";
+import { v1 } from "wailsjs/go/models";
+import { getMetadata } from "@/utils/k8s";
 import { useClipboard } from "@vueuse/core";
 
 const props = defineProps<{
-  selectedResource: v1.Pod;
+  selectedResource: v1.Pod | v1.Deployment;
+  resourceType: string;
 }>();
 
 const metadata = computed(() => getMetadata(props.selectedResource)!);
 
-const { text, copy, copied, isSupported } = useClipboard();
+const { copy, copied } = useClipboard();
 </script>
 
 <template>
@@ -20,7 +21,7 @@ const { text, copy, copied, isSupported } = useClipboard();
       {{ metadata.namespace }}
     </span>
     <ChevronRightIcon class="w-3 h-3 mx-2" />
-    <span class="text-md tooltip cursor-pointer" data-tip="Resource type"> pods </span>
+    <span class="text-md tooltip cursor-pointer" data-tip="Resource type"> {{ resourceType }} </span>
     <ChevronRightIcon class="w-3 h-3 mx-2" />
     <span
       class="text-md tooltip cursor-pointer"

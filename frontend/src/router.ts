@@ -1,4 +1,5 @@
-import PodsVue from "./views/pods/PodsView.vue";
+import PodsView from "@/views/pods/PodsView.vue";
+import DeploymentsView from "@/views/deployments/DeploymentsView.vue";
 
 import * as VueRouter from "vue-router";
 
@@ -16,11 +17,11 @@ export const router = VueRouter.createRouter({
     {
       name: "Pods",
       path: "/pods",
-      component: PodsVue,
+      component: PodsView,
     },
     {
       path: "/deployments",
-      component: () => import("./views/Deployments.vue"),
+      component: DeploymentsView,
     },
     {
       path: "/statefulsets",
