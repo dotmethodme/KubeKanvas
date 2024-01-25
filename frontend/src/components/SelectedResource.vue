@@ -78,7 +78,7 @@ watch(activeTab, (value) => {
           <a role="tab" class="tab" :class="{ 'tab-active': activeTab === 2 }" @click="activeTab = 2"> Yaml </a>
         </div>
 
-        <div class="overflow-auto px-6 flex-grow flex-shrink">
+        <div class="overflow-auto px-6 flex-grow flex-shrink items-center">
           <template v-if="activeTab === 0">
             <slot name="general" :selectedResource="selectedResource"> </slot>
           </template>
@@ -86,7 +86,9 @@ watch(activeTab, (value) => {
             <slot name="logs" :selectedResource="selectedResource"> </slot>
           </template>
           <template v-if="activeTab === 2">
-            <span v-if="!selectedServiceYaml && loading" class="loading loading-spinner loading-sm"></span>
+            <div v-if="!selectedServiceYaml && loading" class="w-full flex items-center justify-center">
+              <span class="loading loading-ring loading-lg h-40"></span>
+            </div>
             <pre v-else><code class="language-yaml">{{ selectedServiceYaml }}</code></pre>
           </template>
         </div>

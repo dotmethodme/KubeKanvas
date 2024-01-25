@@ -59,8 +59,8 @@ const dataList = computed(() => {
     return {
       ...item,
       metrics: podMetrics,
-      cpuUsage: cpuUsage ? `${cpuUsage.toFixed(2)}m` : undefined,
-      memoryUsage: memoryUsage ? prettyBytes(memoryUsage) : undefined,
+      cpuUsage: cpuUsage ? cpuUsage.toFixed(0) : undefined,
+      memoryUsage: memoryUsage ? (memoryUsage / 1024 / 1024).toFixed(0) : undefined,
       friendlyStatus: getPodStatus(item),
     };
   });
@@ -87,15 +87,15 @@ const selectedPodName = computed(() => {
 </script>
 
 <template>
-  <table class="table table-xs">
+  <table class="table table-xs select-none">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Restarts</th>
-        <th>Status</th>
-        <th>Age</th>
-        <th>CPU</th>
-        <th>Memory</th>
+        <th class="text-left">Name</th>
+        <th class="text-left">Status</th>
+        <th class="text-left">Restarts</th>
+        <th class="text-left">Age</th>
+        <th class="text-right">CPU</th>
+        <th class="text-right">Memory</th>
       </tr>
     </thead>
     <tbody>
@@ -110,31 +110,23 @@ const selectedPodName = computed(() => {
         }"
         @click="selectedId = getMetadata(item)?.uid"
       >
-        <td>
-          <div class="flex flex-col">
-            <span class="font-semibold">{{ getMetadata(item)?.name }}</span>
-          </div>
+        <td class="font-semibold">
+          {{ getMetadata(item)?.name }}
         </td>
-        <td>
-          <span class="text-sm">
-            {{ item.status?.containerStatuses?.[0].restartCount }}
-          </span>
+        <td class="text-sm">
+          {{ item.friendlyStatus }}
         </td>
-        <td>
-          <span class="text-sm">
-            {{ item.friendlyStatus }}
-          </span>
+        <td class="text-sm text-left">
+          {{ item.status?.containerStatuses?.[0].restartCount }}
         </td>
-        <td>
-          <span class="text-sm">
-            {{ getTimeAgo(getMetadata(item)?.creationTimestamp) }}
-          </span>
+        <td class="text-sm text-left">
+          {{ getTimeAgo(getMetadata(item)?.creationTimestamp) }}
         </td>
-        <td>
-          <span class="text-sm"> {{ item.cpuUsage }} </span>
+        <td class="text-sm text-right">
+          {{ item.cpuUsage }}
         </td>
-        <td>
-          <span class="text-sm"> {{ item.memoryUsage }} </span>
+        <td class="text-sm text-right">
+          {{ item.memoryUsage }}
         </td>
       </tr>
     </tbody>
