@@ -2,11 +2,11 @@
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { GetPodLogs } from "../../../wailsjs/go/main/App";
 import { useGlobalStore } from "../../stores/global";
-import { v1 } from "../../../wailsjs/go/models";
+import { backend } from "../../../wailsjs/go/models";
 import { getMetadata } from "../../utils/k8s";
 
 const props = defineProps<{
-  selectedResource: v1.Pod;
+  selectedResource: backend.PodDTO;
 }>();
 
 const resourceName = computed(() => getMetadata(props.selectedResource)?.name);

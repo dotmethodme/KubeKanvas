@@ -2,7 +2,7 @@
 import { ChevronRightIcon, TrashIcon } from "@heroicons/vue/24/outline";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { DeletePod, GetPodEvents } from "../../../wailsjs/go/main/App";
-import { v1 } from "../../../wailsjs/go/models";
+import { backend } from "../../../wailsjs/go/models";
 import { useGlobalStore } from "../../stores/global";
 import { getMetadata } from "../../utils/k8s";
 import { useDialogStore } from "../../stores/dialog";
@@ -10,7 +10,7 @@ import { useAsyncState } from "@vueuse/core";
 import { getTimeAgo } from "../../utils/date";
 
 const props = defineProps<{
-  selectedResource: v1.Pod;
+  selectedResource: backend.PodDTO;
   onClosePodView: () => void;
 }>();
 

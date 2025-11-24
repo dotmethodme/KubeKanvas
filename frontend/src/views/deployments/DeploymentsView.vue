@@ -2,7 +2,7 @@
 import { storeToRefs } from "pinia";
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { GetDeployments } from "wailsjs/go/main/App";
-import { v1 } from "wailsjs/go/models";
+import { backend } from "wailsjs/go/models";
 import DeploymentGeneral from "@/components/DeploymentGeneral.vue";
 import SelectedResource from "@/components/SelectedResource.vue";
 import { useGlobalStore } from "@/stores/global";
@@ -12,7 +12,7 @@ import Footer from "@/components/Footer.vue";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
-const items = ref<v1.DeploymentList>();
+const items = ref<backend.DeploymentListDTO>();
 const selectedId = ref<string>();
 
 function getData() {

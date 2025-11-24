@@ -10,11 +10,9 @@ import (
 	"strings"
 	"time"
 
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/metrics/pkg/apis/metrics/v1beta1"
 )
 
 // App struct
@@ -44,29 +42,29 @@ func (a *App) GetResourceYaml(args backend.GetResourceYamlRequest) string {
 	return string(out)
 }
 
-func (a *App) GetDeployments(contextName string, namespace string) *appsv1.DeploymentList {
+func (a *App) GetDeployments(contextName string, namespace string) backend.DeploymentListDTO {
 	result, _ := backend.GetClient(contextName).AppsV1().Deployments(namespace).List(context.TODO(), metav1.ListOptions{})
-	return result
+	return backend.ToDeploymentListDTO(result)
 }
 
-func (a *App) GetPods(contextName string, namespace string) *corev1.PodList {
+func (a *App) GetPods(contextName string, namespace string) backend.PodListDTO {
 	result, _ := backend.GetClient(contextName).CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
-	return result
+	return backend.ToPodListDTO(result)
 }
 
-func (a *App) GetStatefulSets(contextName string, namespace string) *appsv1.StatefulSetList {
+func (a *App) GetStatefulSets(contextName string, namespace string) backend.StatefulSetListDTO {
 	result, _ := backend.GetClient(contextName).AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
-	return result
+	return backend.ToStatefulSetListDTO(result)
 }
 
-func (a *App) GetDaemonSets(contextName string, namespace string) *appsv1.DaemonSetList {
+func (a *App) GetDaemonSets(contextName string, namespace string) backend.DaemonSetListDTO {
 	result, _ := backend.GetClient(contextName).AppsV1().DaemonSets(namespace).List(context.TODO(), metav1.ListOptions{})
-	return result
+	return backend.ToDaemonSetListDTO(result)
 }
 
-func (a *App) GetServices(contextName string, namespace string) *corev1.ServiceList {
+func (a *App) GetServices(contextName string, namespace string) backend.ServiceListDTO {
 	result, _ := backend.GetClient(contextName).CoreV1().Services(namespace).List(context.TODO(), metav1.ListOptions{})
-	return result
+	return backend.ToServiceListDTO(result)
 }
 
 func (a *App) GetPodLogs(req backend.PodLogsRequest) ([]string, string) {
@@ -105,29 +103,29 @@ func (a *App) GetPodLogs(req backend.PodLogsRequest) ([]string, string) {
 	return filteredLogs, ""
 }
 
-func (a *App) GetConfigMaps(contextName string, namespace string) *corev1.ConfigMapList {
+func (a *App) GetConfigMaps(contextName string, namespace string) backend.ConfigMapListDTO {
 	result, _ := backend.GetClient(contextName).CoreV1().ConfigMaps(namespace).List(context.TODO(), metav1.ListOptions{})
-	return result
+	return backend.ToConfigMapListDTO(result)
 }
 
-func (a *App) GetSecrets(contextName string, namespace string) *corev1.SecretList {
+func (a *App) GetSecrets(contextName string, namespace string) backend.SecretListDTO {
 	result, _ := backend.GetClient(contextName).CoreV1().Secrets(namespace).List(context.TODO(), metav1.ListOptions{})
-	return result
+	return backend.ToSecretListDTO(result)
 }
 
-func (a *App) GetPersistentVolumes(contextName string) *corev1.PersistentVolumeList {
+func (a *App) GetPersistentVolumes(contextName string) backend.PersistentVolumeListDTO {
 	result, _ := backend.GetClient(contextName).CoreV1().PersistentVolumes().List(context.TODO(), metav1.ListOptions{})
-	return result
+	return backend.ToPersistentVolumeListDTO(result)
 }
 
-func (a *App) GetPersistentVolumeClaims(contextName string, namespace string) *corev1.PersistentVolumeClaimList {
+func (a *App) GetPersistentVolumeClaims(contextName string, namespace string) backend.PersistentVolumeClaimListDTO {
 	result, _ := backend.GetClient(contextName).CoreV1().PersistentVolumeClaims(namespace).List(context.TODO(), metav1.ListOptions{})
-	return result
+	return backend.ToPersistentVolumeClaimListDTO(result)
 }
 
-func (a *App) GetNamespaces(contextName string) *corev1.NamespaceList {
+func (a *App) GetNamespaces(contextName string) backend.NamespaceListDTO {
 	result, _ := backend.GetClient(contextName).CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
-	return result
+	return backend.ToNamespaceListDTO(result)
 }
 
 func (a *App) GetAvailableContexts() []string {
@@ -147,13 +145,13 @@ func (a *App) RestartDeployment(contextName string, namespace string, deployment
 	return true
 }
 
-func (a *App) GetPodsByDeployment(contextName string, namespace string, labelSelector metav1.LabelSelector) *corev1.PodList {
+func (a *App) GetPodsByDeployment(contextName string, namespace string, labelSelector metav1.LabelSelector) backend.PodListDTO {
 	fmt.Println(labelSelector)
 	result, _ := backend.GetClient(contextName).CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
 		LabelSelector: metav1.FormatLabelSelector(&labelSelector),
 	})
 
-	return result
+	return backend.ToPodListDTO(result)
 }
 
 func (a *App) DeletePod(contextName string, namespace string, podName string) bool {
@@ -169,20 +167,20 @@ func (a *App) DeletePod(contextName string, namespace string, podName string) bo
 	return true
 }
 
-func (a *App) GetPodEvents(contextName string, namespace string, podName string) *corev1.EventList {
+func (a *App) GetPodEvents(contextName string, namespace string, podName string) backend.EventListDTO {
 	result, err := backend.GetClient(contextName).CoreV1().Events(namespace).List(context.TODO(), metav1.ListOptions{
 		FieldSelector: fmt.Sprintf("involvedObject.name=%s", podName),
 	})
 
 	if err != nil {
 		log.Println(err.Error())
-		return nil
+		return backend.EventListDTO{Items: []backend.EventDTO{}}
 	}
 
-	return result
+	return backend.ToEventListDTO(result)
 }
 
-func (a *App) GetPodMetrics(contextName string, namespace string, podName string) *v1beta1.PodMetrics {
+func (a *App) GetPodMetrics(contextName string, namespace string, podName string) *backend.PodMetricsDTO {
 	result, err := backend.GetMetricsClient(contextName).MetricsV1beta1().PodMetricses(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
 
 	if err != nil {
@@ -190,16 +188,17 @@ func (a *App) GetPodMetrics(contextName string, namespace string, podName string
 		return nil
 	}
 
-	return result
+	dto := backend.ToPodMetricsDTO(result)
+	return &dto
 }
 
-func (a *App) ListPodMetrics(contextName string, namespace string) *v1beta1.PodMetricsList {
+func (a *App) ListPodMetrics(contextName string, namespace string) backend.PodMetricsListDTO {
 	result, err := backend.GetMetricsClient(contextName).MetricsV1beta1().PodMetricses(namespace).List(context.TODO(), metav1.ListOptions{})
 
 	if err != nil {
 		log.Println(err.Error())
-		return nil
+		return backend.PodMetricsListDTO{Items: []backend.PodMetricsDTO{}}
 	}
 
-	return result
+	return backend.ToPodMetricsListDTO(result)
 }

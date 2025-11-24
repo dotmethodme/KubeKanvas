@@ -2,7 +2,7 @@
 import { storeToRefs } from "pinia";
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { GetServices } from "../../wailsjs/go/main/App";
-import { v1 } from "../../wailsjs/go/models";
+import { backend } from "../../wailsjs/go/models";
 import SelectedResource from "../components/SelectedResource.vue";
 import { useGlobalStore } from "../stores/global";
 import { getTimeAgo } from "../utils/date";
@@ -10,7 +10,7 @@ import { getMetadata } from "../utils/k8s";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
-const items = ref<v1.ServiceList>();
+const items = ref<backend.ServiceListDTO>();
 const selectedId = ref<string>();
 
 function getData() {

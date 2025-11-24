@@ -8,15 +8,15 @@ import { storeToRefs } from "pinia";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { GetPods, ListPodMetrics } from "wailsjs/go/main/App";
-import { v1, v1beta1 } from "wailsjs/go/models";
+import { backend } from "wailsjs/go/models";
 import PodGeneral from "./PodGeneral.vue";
 import PodLogs from "./PodLogs.vue";
 import prettyBytes from "pretty-bytes";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
-const items = ref<v1.PodList>();
-const metrics = ref<v1beta1.PodMetricsList>();
+const items = ref<backend.PodListDTO>();
+const metrics = ref<backend.PodMetricsListDTO>();
 
 const selectedId = ref<string>();
 const router = useRouter();
@@ -50,11 +50,16 @@ const dataList = computed(() => {
   if (!items.value || !metrics.value) return;
   const result = items.value.items.map((item) => {
     const podMetrics = metrics.value!.items.find((x) => getMetadata(x)?.name === getMetadata(item)?.name);
-    const cpuUsage = podMetrics?.containers.reduce((acc, x) => acc + x.usage?.cpu.replace("n", "") / 1000000 || 0, 0);
-    const memoryUsage = podMetrics?.containers.reduce(
-      (acc, x) => acc + x.usage?.memory.replace("Ki", "") * 1024 || 0,
-      0
-    );
+    const cpuUsage = podMetrics?.containers.reduce((acc, x) => {
+      const cpuStr = x.usage?.cpu || "0";
+      const cpuValue = parseFloat(cpuStr.replace("n", "")) / 1000000;
+      return acc + cpuValue || 0;
+    }, 0);
+    const memoryUsage = podMetrics?.containers.reduce((acc, x) => {
+      const memStr = x.usage?.memory || "0";
+      const memValue = parseFloat(memStr.replace("Ki", "")) * 1024;
+      return acc + memValue || 0;
+    }, 0);
 
     return {
       ...item,

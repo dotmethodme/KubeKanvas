@@ -1,4 +1,4 @@
-import { v1 } from "wailsjs/go/models";
+import { backend } from "wailsjs/go/models";
 
 export type GenericResourceWithMetadata = {
   metadata: Metadata;
@@ -20,7 +20,7 @@ export function getMetadata(resource: any): Metadata | undefined {
 
 export type PodStatus = "Running" | "Waiting" | "Terminated" | "Unknown" | "Finished" | "Error";
 
-export function getPodStatus(item: v1.Pod): PodStatus {
+export function getPodStatus(item: backend.PodDTO): PodStatus {
   return item.status?.containerStatuses?.[0].state?.running
     ? "Running"
     : item.status?.containerStatuses?.[0].state?.waiting

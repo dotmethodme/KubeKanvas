@@ -2,14 +2,14 @@
 import { storeToRefs } from "pinia";
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { GetStatefulSets } from "../../wailsjs/go/main/App";
-import { v1 } from "../../wailsjs/go/models";
+import { backend } from "../../wailsjs/go/models";
 import { useGlobalStore } from "../stores/global";
 import { getTimeAgo } from "../utils/date";
 import { getMetadata } from "../utils/k8s";
 
 const globalStore = useGlobalStore();
 const { activeContextName, activeNamespace } = storeToRefs(globalStore);
-const items = ref<v1.StatefulSetList>();
+const items = ref<backend.StatefulSetListDTO>();
 const selectedId = ref<string>();
 
 function getData() {
@@ -52,7 +52,7 @@ watch([activeContextName, activeNamespace], getData);
           <span class="text-sm"> {{ item.status?.updatedReplicas }}/{{ item.status?.replicas }} </span>
         </td>
         <td>
-          <span class="text-sm"> {{ item.status?.availableReplicas }}/{{ item.status?.replicas }} </span>
+          <span class="text-sm"> {{ item.status?.currentReplicas }}/{{ item.status?.replicas }} </span>
         </td>
         <td>
           <span class="text-sm">

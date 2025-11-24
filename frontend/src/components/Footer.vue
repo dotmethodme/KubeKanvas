@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { ChevronRightIcon } from "@heroicons/vue/24/outline";
 import { computed } from "vue";
-import { v1 } from "wailsjs/go/models";
+import { backend } from "wailsjs/go/models";
 import { getMetadata } from "@/utils/k8s";
 import { useClipboard } from "@vueuse/core";
 
 const props = defineProps<{
-  selectedResource: v1.Pod | v1.Deployment;
+  selectedResource: backend.PodDTO | backend.DeploymentDTO;
   resourceType: string;
 }>();
 

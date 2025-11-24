@@ -3,13 +3,13 @@ import { ArrowPathIcon, ArrowUpRightIcon, ChevronRightIcon } from "@heroicons/vu
 import { useAsyncState } from "@vueuse/core";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { GetPodsByDeployment, RestartDeployment } from "../../wailsjs/go/main/App";
-import { v1 } from "../../wailsjs/go/models";
+import { backend } from "../../wailsjs/go/models";
 import { useGlobalStore } from "../stores/global";
 import { getMetadata } from "../utils/k8s";
 import PodTable from "./PodTable.vue";
 
 const props = defineProps<{
-  selectedResource: v1.Deployment;
+  selectedResource: backend.DeploymentDTO;
 }>();
 
 const store = useGlobalStore();
